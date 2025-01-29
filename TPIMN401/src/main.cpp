@@ -107,44 +107,50 @@ namespace IMN401 {
 
 
         std::vector<glm::vec3> sommets;
-		sommets.push_back(glm::vec3(0.0f, 0.0f, 0.0f));                                                                 // On défini le point central qui sera utilisé dans tous les triangles et son index de sommet sera 0
+		sommets.push_back(glm::vec3(0.0f, 0.0f, 0.0f));             // On défini le point central qui sera utilise dans tous les triangles et son index de sommet sera 0
         const float rayon = 0.5f;
         const int nbPoints = 30;
 
         for (int i = 0; i < nbPoints; ++i) {
-            float angle = 2.0f * glm::pi<float>() * i / nbPoints;                                                       // On sépare 2pi (360) en 16 pour trouver l'angle lié au centre de chaque triangle
-			float x = rayon * cos(angle);															                    // On trouve les coordonnées x et y de chaque point rayon * cos(angle) et rayon * sin(angle)
+            float angle = 2.0f * glm::pi<float>() * i / nbPoints;   // On sépare 2pi (360) en 16 pour trouver l'angle lié au centre de chaque triangle
+			float x = rayon * cos(angle);							// On trouve les coordonnées x et y de chaque point rayon * cos(angle) et rayon * sin(angle)
             float y = rayon * sin(angle);
             sommets.push_back(glm::vec3(x, y, 0.0f));
         }
 
         GLuint vertexBuffer;
-		glCreateBuffers(1, &vertexBuffer);    							                                                // Créer un buffer
-		glNamedBufferData(vertexBuffer, sizeof(glm::vec3) * sommets.size(), sommets.data(), GL_STATIC_DRAW);            // Insérer les sommets dans le buffer directement
+		glCreateBuffers(1, &vertexBuffer);    							                                                // Creer un buffer
+		glNamedBufferData(vertexBuffer, sizeof(glm::vec3) * sommets.size(), sommets.data(), GL_STATIC_DRAW);            // Inserer les sommets dans le buffer directement
 
-        std::vector<glm::ivec3> indices;
+        std::vector<glm::ivec3> indices;    
        
+        // Tableau des faces, on cree tous nos triangles
         for (int i = 1; i <= nbPoints; i++) {
 			indices.push_back(glm::ivec3(0, i,(i % nbPoints) + 1));
         }
-		//indices.push_back(glm::ivec3(0, 1, nbPoints));																	// Tableau des faces, on crée tous nos triangles
 
         GLuint EBO_indices;
         glCreateBuffers(1, &EBO_indices);
         glNamedBufferData(EBO_indices, sizeof(glm::ivec3) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
 
-        GLuint vertexArray;
-        glCreateVertexArrays(1, &vertexArray);                                                                          // Créer le vertex array
-        glVertexArrayAttribFormat(vertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);                                            // Spécifier qu'on s'attend à 3 floats sur le channel 0
-		glEnableVertexArrayAttrib(vertexArray, 0);                                                                      // Activer le channel 0
-        glVertexArrayVertexBuffer(vertexArray, 0, vertexBuffer, 0, sizeof(glm::vec3));                                  // Spécifier le Vertex Buffer Object à lire et la taille qu'il aura pour le channel 0
-		glVertexArrayAttribBinding(vertexArray, 0, 0);  														        // Lier le channel 0 au buffer 0      
-		glVertexArrayElementBuffer(vertexArray, EBO_indices);   											            // Lier l'array des indices au vertex array   
 
+        // Creer le vertex array
+        GLuint vertexArray;
+        glCreateVertexArrays(1, &vertexArray);
+        glVertexArrayAttribFormat(vertexArray, 0, 3, GL_FLOAT, GL_FALSE, 0);
+		glEnableVertexArrayAttrib(vertexArray, 0);
+        glVertexArrayVertexBuffer(vertexArray, 0, vertexBuffer, 0, sizeof(glm::vec3));
+		glVertexArrayAttribBinding(vertexArray, 0, 0); 
+		glVertexArrayElementBuffer(vertexArray, EBO_indices);
+
+
+        //Shader Programs
         GLuint vertexShaderProgram = glCreateShaderProgramv(GL_VERTEX_SHADER, 1, &vsCode);
         GLuint fragmentShaderProgram = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, &fsCode);
 
+
+        //Pipeline
         GLuint pipeline;
         glCreateProgramPipelines(1, &pipeline);
         glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vertexShaderProgram);
@@ -170,7 +176,7 @@ namespace IMN401 {
             // ==================
             // TODO: render here !
             glClear(GL_COLOR_BUFFER_BIT);
-            glProgramUniform1f(vertexShaderProgram, vShaderTimeAddr, clock() / 500.0f);                                 // Plus vite ou lent dépendant de la division effectuée
+            glProgramUniform1f(vertexShaderProgram, vShaderTimeAddr, clock() / 500.0f);                                 // Plus vite ou lent dependant de la division effectuee
             glBindProgramPipeline(pipeline);
             glBindVertexArray(vertexArray);
 
